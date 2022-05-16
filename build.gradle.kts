@@ -1,5 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
+//kdoc / plugin:dokka
+
 plugins {
     kotlin("jvm") version "1.5.10"
     application
