@@ -1,9 +1,4 @@
-import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.isNull
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.like
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.match
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.io.File
 
@@ -11,54 +6,21 @@ fun main(args: Array<String>) {
 
     //Selección de preguntas:
     val listaDiccionarios = extraerPreguntas("preguntas_trivial.txt")
-    val preguntasSeleccionadas = listaDiccionarios.shuffled().take(5)
+    val preguntasSeleccionadas = listaDiccionarios.shuffled().take(10)
 
     //Conexión a la base de datos:
-
     Database.connect("jdbc:sqlite:src/main/kotlin/database.db")
     transaction {
         SchemaUtils.create(usuarios)
         SchemaUtils.create(partidas)
     }
 
+    val userName =  login()
+
     //Login del usuario:
-
     while (true) {
-        println("Nombre de usuario: ")
 
-        //¿Existe el usuario?
-        var userInput = readLine().toString()
-        var ocurrencias:Long = 0
-        transaction {
-            ocurrencias = usuarios.slice(usuarios.nombre_usuario_us).select { usuarios.nombre_usuario_us eq userInput }.count()
-        }
-
-        if (ocurrencias > 0) {
-                //Si el usuario existe:
-                println("El usuario existe. Contraseña: ")
-                val pass  = transaction {
-                    usuarios.select { usuarios.nombre_usuario_us eq userInput }.first()[usuarios.contrasenya_us]
-                }
-                 println("El pass es $pass")
-                if (readLine().toString() == pass) {
-                    println("Contraseña correcta.")
-
-                } else {
-                    println("Contraseña incorrecta")
-                    continue
-                }
-            } else {
-                //Si el suuario no existe:
-                println("El usuario no existe. Creando usuario. Nueva contraseña: ")
-                val pass = readLine().toString()
-                transaction {
-                    usuarios.insert {
-                        it[nombre_usuario_us] = "$userInput"
-                        it[contrasenya_us] = "$pass"
-                    }
-                }
-        }
-
+        //Partida:
         var puntos = 0
         for (pregunta in preguntasSeleccionadas) {
             println(pregunta["pregunta"])
@@ -77,9 +39,11 @@ fun main(args: Array<String>) {
         }
         println("Puntuacion: $puntos/10")
 
+        //Guardar resultados:
+
         transaction {
             partidas.insert {
-                it[nombre_usuario_pa] = "$userInput"
+                it[nombre_usuario_pa] = "$userName"
                 it[puntuacion_pa] = puntos
             }
         }
@@ -88,7 +52,9 @@ fun main(args: Array<String>) {
         if ("Y" == readLine()) continue else break
     }
 
-    println("Tabla de puntuaciones: \n ----------------------")
+    //Imprimir ranking:
+
+    println("Mejores Puntuaciones: \n ----------------------")
      transaction {
         val datos = partidas.selectAll().orderBy(partidas.puntuacion_pa, SortOrder.DESC).limit(5)
         datos.forEach {
@@ -96,6 +62,50 @@ fun main(args: Array<String>) {
         }
     }
 
+    //Guardar en csv:
+
+
+}
+
+fun login():String {
+    var userInput = ""
+    while (true) {
+        //¿Existe el usuario?
+        println("Nombre de usuario: ")
+        userInput = readLine().toString()
+        var ocurrencias: Long = 0
+        transaction {
+            ocurrencias =
+                usuarios.slice(usuarios.nombre_usuario_us).select { usuarios.nombre_usuario_us eq userInput }.count()
+        }
+
+        if (ocurrencias > 0) {
+            //Si el usuario existe:
+            println("El usuario existe. Contraseña: ")
+            val pass = transaction {
+                usuarios.select { usuarios.nombre_usuario_us eq userInput }.first()[usuarios.contrasenya_us]
+            }
+            println("El pass es $pass")
+            if (readLine().toString() == pass) {
+                println("Contraseña correcta.")
+                return userInput
+            } else {
+                println("Contraseña incorrecta")
+                continue
+            }
+        } else {
+            //Si el suuario no existe:
+            println("El usuario no existe. Creando usuario. Nueva contraseña: ")
+            val pass = readLine().toString()
+            transaction {
+                usuarios.insert {
+                    it[nombre_usuario_us] = userInput.padStart(30)
+                    it[contrasenya_us] = "$pass"
+                }
+            }
+            return userInput
+        }
+    }
 }
 
 fun extraerPreguntas(fichero:String): List<Map<String,String>> {
@@ -122,3 +132,4 @@ fun extraerPreguntas(fichero:String): List<Map<String,String>> {
 
     return listaDiccionarios
 }
+
