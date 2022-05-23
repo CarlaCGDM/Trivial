@@ -1,4 +1,5 @@
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.io.File
 
@@ -73,12 +74,9 @@ fun login():String {
         //¿Existe el usuario?
         println("Nombre de usuario: ")
         userInput = readLine().toString()
-        var ocurrencias: Long = 0
-        transaction {
-            ocurrencias =
-                usuarios.slice(usuarios.nombre_usuario_us).select { usuarios.nombre_usuario_us eq userInput }.count()
+        val ocurrencias = transaction {
+            usuarios.select { usuarios.nombre_usuario_us eq userInput }.count()
         }
-
         if (ocurrencias > 0) {
             //Si el usuario existe:
             println("El usuario existe. Contraseña: ")
@@ -99,7 +97,7 @@ fun login():String {
             val pass = readLine().toString()
             transaction {
                 usuarios.insert {
-                    it[nombre_usuario_us] = userInput.padStart(30)
+                    it[nombre_usuario_us] = userInput
                     it[contrasenya_us] = "$pass"
                 }
             }

@@ -15,12 +15,13 @@ repositories {
 }
 
 dependencies {
-    implementation("net.anwiba.database:anwiba-database-sqlite:1.1.158")
     testImplementation(kotlin("test"))
     implementation("org.jetbrains.exposed", "exposed-core", "0.38.1")
     implementation("org.jetbrains.exposed", "exposed-dao", "0.38.1")
     implementation("org.jetbrains.exposed", "exposed-jdbc", "0.38.1")
-    implementation("org.xerial:sqlite-jdbc:3.36.0.3") //sqlite
+    implementation("com.h2database:h2:2.1.212")
+    implementation("org.xerial:sqlite-jdbc:3.36.0.3")
+    implementation("net.anwiba.database:anwiba-database-sqlite:1.1.158")
 
 }
 
