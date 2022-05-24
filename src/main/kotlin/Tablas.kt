@@ -4,7 +4,7 @@ import org.jetbrains.exposed.sql.Table
 object partidas : Table() {
     val nombre_usuario_pa = text("jugador").references(usuarios.nombre_usuario_us)
     val puntuacion_pa = integer("puntuación")
-    //val: dia y hora
+    val fecha_pa = text("fecha")
 }
 
 object usuarios: Table() {
