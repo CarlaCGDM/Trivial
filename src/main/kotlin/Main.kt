@@ -31,9 +31,9 @@ fun main(args: Array<String>) {
 
     //Login del usuario:
     val jugador =  login()
-    println("***************************************************************")
+    println("---------------------------------------------------------------")
     println("                    Bienvenid@, $jugador                       ")
-    println("***************************************************************")
+    println("---------------------------------------------------------------")
 
     //Bucle del juego:
     while (true) {
@@ -43,10 +43,10 @@ fun main(args: Array<String>) {
         //Por cada pregunta...
         for (pregunta in preguntasSeleccionadas) {
             println(pregunta["pregunta"])
-            println("A)" + pregunta["opcion_1"])
-            println("B)" + pregunta["opcion_2"])
-            println("C)" + pregunta["opcion_3"])
-            println("D)" + pregunta["opcion_4"])
+            println("A)" + pregunta["opcion_a"])
+            println("B)" + pregunta["opcion_b"])
+            println("C)" + pregunta["opcion_c"])
+            println("D)" + pregunta["opcion_d"])
             val respuestaUsusario = readLine().toString().uppercase()
             val respuestaCorrecta = pregunta["respuesta"]
 
@@ -141,7 +141,6 @@ fun login():String {
             //Si el suuario no existe:
             print("Creando nuevo usuario. Contraseña: ")
             val pass = readLine().toString()
-            println("**********************************************************")
             transaction {
                 usuarios.insert {
                     it[nombre_usuario_us] = userInput
@@ -163,10 +162,10 @@ fun extraerPreguntas(fichero:String): List<Map<String,String>> {
         when (i) {
             0 -> diccionario["pregunta"] = linea
             1 -> diccionario["respuesta"] = linea
-            2 -> diccionario["opcion_1"] = linea
-            3 -> diccionario["opcion_2"] = linea
-            4 -> diccionario["opcion_3"] = linea
-            5 -> diccionario["opcion_4"] = linea
+            2 -> diccionario["opcion_a"] = linea
+            3 -> diccionario["opcion_b"] = linea
+            4 -> diccionario["opcion_c"] = linea
+            5 -> diccionario["opcion_d"] = linea
         }
         if (i == 5) {
             i=0
